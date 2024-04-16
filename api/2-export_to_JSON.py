@@ -14,17 +14,20 @@ if __name__ == "__main__":
     user_id = argv[1]
     res = requests.get(f"{URL}users/{argv[1]}")
     res = res.json()
-    user_name = res['name']
+    user_name = res['username']
 
     res = requests.get(f"{URL}todos")
     all_todos = res.json()
     user_todos = [todo for todo in all_todos if todo['userId'] == int(argv[1])]
-    nr_tasks = len(user_todos)
-    completed_tasks = [completed for completed in user_todos
-                       if completed['completed'] is True]
-    completed_title = [title['title'] for title in completed_tasks]
 
-    print(f"Employee {user_name} is done", end="")
-    print(f" with tasks({len(completed_tasks)}/{nr_tasks}):")
-    for title in completed_title:
-        print(f"\t {title}")
+    user_dict = []
+
+    for todo in user_todos:
+        user_dict.append({"task": todo['title'],
+                          "completed": todo['completed'],
+                          "username": user_name})
+
+    json_object = {f"{user_id}": user_dict}
+
+    with open(f"{user_id}.json", 'w') as file:
+        json.dump(json_object, file)
